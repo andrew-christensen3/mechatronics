@@ -11,7 +11,16 @@
 
 
 void forward(); //this make it move forward a meter. need to measure how wide diamiter of wheels are
+{ // assume all lengths in mm and time is in msec
+    float circumference = 3.14159 * (put wheel diamiter in mm here);
+    float revolutions = 1000 / circumference;
+    long time_msec = revolutions * 1000;  // long just makes it so that it can accept more #s than just an int or float
 
+    OC1RS = 1249;
+    OC1R = 625;          //50% duty so motors run
+    __delay_ms(time_msec);  //just waits while the motors go
+    OC1R = 0;            //duty 0 so motors stop
+}
 void 90_degree_turn(); //makes it turn 90 degrees with right turn
 
 void 180_degree turn_right(); //makes it turn 180 degrees with right turn

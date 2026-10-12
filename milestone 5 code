@@ -1,0 +1,65 @@
+ // both motors will have same pwm speed. all math is done here. all the needs to be done is to call a function for it to do its intended purpose
+// assume that there are 200 steps in a revoltion and we are doing single steps for the servo
+#include "xc.h"
+
+#pragma config ICS = PGx3
+
+#pragma config FNOSC = LPFRC    //this is 500kHz
+
+
+#include "xc.h"
+
+
+void forward(); //this make it move forward a meter. need to measure how wide diamiter of wheels are
+
+void 90_degree_turn(); //makes it turn 90 degrees with right turn
+
+void 180_degree turn_right(); //makes it turn 180 degrees with right turn
+
+
+
+
+int main(void) {
+    
+    OC1CON2bits.SYNCSEL = 0x1F;  //sets pin 14 as a pwm
+    OC1CON1bits.OCTSEL = 0b111;
+    OC1CON1bits.OCM = 0b110;
+    OC1CON2bits.OCTRIG = 0;
+    
+  
+    
+     _RCDIV = 0b00;   //sets postscalor to 1
+    
+    ANSA = 0; //MAKES IT DIGITAL
+    ANSB = 0;
+    _TRISA6 = 0;  // sets it to output for pwm, the 50% pwm
+    _TRISB0 = 0;  //set this to  pwm pin 4
+    _TRISA1 = 1;  //sets pin 3 as input
+
+    OC1RS = 166;  
+    OC1R = 0;     
+    _TRISB1 = 0;
+    _LATB0 = 0; //pin 4
+    
+    while(1){
+        if (_RA1 == 0) {  //THIS PARRT MAKES IT RUN 50% FORWARD WHEN NOT PUSHED
+            
+            _LATB1 = 0;  //pin 5
+           OC1RS = 1249; 
+            OC1R = 625; //SETS DUTY CYCLE  set to 50%
+            
+            forward(//what needs to go here?);
+            90_degree_turn();
+            forward()
+            180_degree turn_right()
+            forward()
+        }
+
+            
+        }
+                
+    }
+            
+    
+    return 0;
+}

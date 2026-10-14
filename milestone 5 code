@@ -29,7 +29,7 @@ void run(float mm) { // assume all lengths in mm and time is in msec
 void forward(void) //this makes it move forward a meter
 {
     _LATB0 = 0;
-    _LATA1 = 1;          // opposite levels = both wheels forward. TUNE: flip one if a wheel goes backward
+    _LATA1 = 1;          
     run(1000.0);
 }
 

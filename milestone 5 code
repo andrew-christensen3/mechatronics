@@ -6,7 +6,7 @@
 #pragma config FNOSC = LPFRC    //this is 500kHz
 
 #define WHEEL_DIAMETER 90    //diamiter in mm
-#define TURN90_MM    100 //(honestly just mess with this number till it works) 
+#define TURN90_MM    200 //(honestly just mess with this number till it works) 
 #define PI           3.14159
 
 void _delay(long time_msec)

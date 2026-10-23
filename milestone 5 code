@@ -5,7 +5,7 @@
 
 #pragma config FNOSC = LPFRC    //this is 500kHz
 
-#define WHEEL_DIAMITER (PUT DIAMITER HERE)    //diamiter in mm
+#define WHEEL_DIAMITER 90    //diamiter in mm
 #define TURN90_MM    100 //(honestly just mess with this number till it works) 
 #define PI           3.14159
 

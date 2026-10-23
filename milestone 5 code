@@ -9,8 +9,10 @@
 #define TURN90_MM    100 //(honestly just mess with this number till it works) 
 #define PI           3.14159
 
-void _delay(long time_msec) {
-    while (time_msec-- > 0) __delay_ms(1);
+void _delay(long time_msec)
+{
+    unsigned long cycles = time_msec * 250;   // 250 cycles = 1 millisecond
+    __delay32(cycles);                        // wait that many cycles
 }
 
 

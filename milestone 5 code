@@ -5,7 +5,7 @@
 
 #pragma config FNOSC = LPFRC    //this is 500kHz
 
-#define WHEEL_DIAMITER 90    //diamiter in mm
+#define WHEEL_DIAMETER (PUT DIAMITER HERE)    //diamiter in mm
 #define TURN90_MM    100 //(honestly just mess with this number till it works) 
 #define PI           3.14159
 
@@ -15,7 +15,7 @@ void _delay(long time_msec) {
 
 
 void run(float mm) { // assume all lengths in mm and time is in msec
-    float circumference = PI * WHEEL_DIAMITER;
+    float circumference = PI * WHEEL_DIAMETER;
     float revolutions = mm / circumference;
     long time_msec = revolutions * 1000;  // long just makes it so that it can accept more #s than just an int or float
 

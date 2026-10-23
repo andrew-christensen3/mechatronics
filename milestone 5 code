@@ -6,7 +6,7 @@
 #pragma config FNOSC = LPFRC    //this is 500kHz
 
 #define WHEEL_DIAMETER 90    //diamiter in mm
-#define TURN90_MM    200 //(honestly just mess with this number till it works) 
+#define TURN90_MM    100 //(honestly just mess with this number till it works) 
 #define PI           3.14159
 
 void _delay(long time_msec)
@@ -76,8 +76,8 @@ int main(void) {
     ANSA = 0; //MAKES IT DIGITAL
     ANSB = 0;
     _TRISA6 = 0;  // sets it to output for pwm, 
-    _TRISB0 = 0;  //set this to pin 4
-    _TRISA1 = 0;  //sets pin 3 as output
+    _TRISB0 = 0;  //set this to pin 4      //Pin 4 is left wheel?
+    _TRISA1 = 0;  //sets pin 3 as output   //Pin 3 is right wheel?
     _TRISB2 = 1;  //pin 6 button input
 
     OC1RS = 166;  
@@ -100,5 +100,4 @@ int main(void) {
     }
     
     return 0;
-}
 }

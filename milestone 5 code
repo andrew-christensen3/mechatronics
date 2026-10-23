@@ -11,8 +11,18 @@
 
 void _delay(long time_msec)
 {
-    unsigned long cycles = time_msec * 250;   // 250 cycles = 1 millisecond
-    __delay32(cycles);                        // wait that many cycles
+    long i;                         
+    T1CONbits.TON = 0;               // timer off
+    T1CONbits.TCS = 0;               // internal clock
+    T1CONbits.TCKPS = 0b00;          // prescale 1
+
+    for (i = 0; i < time_msec; i = i + 1)    
+    {
+        TMR1 = 0;                    // start counting 
+        T1CONbits.TON = 1;           // timer on
+        while (TMR1 < 250) { }       // 250 counts = 1 millisecond
+        T1CONbits.TON = 0;           // timer off
+    }
 }
 
 

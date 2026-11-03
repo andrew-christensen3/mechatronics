@@ -80,7 +80,7 @@ void config_ad(void)
     _ADCS = 0b00000011;    // AD1CON3<7:0> -- TAD needs to be at least 600 ns. Thus, _ADCS = 0b00000010 will give us the fastest AD clock given a 4 MHz system clock. 0b00000011 is slower than we could go, but still fast enough for our needs.
 
     // AD1CSS registers
-    AD1CSSL = 0b0000000000000100; // choose A2D channels you'd like to scan here. we are choosing pin 18
+    AD1CSSL = 0b0000000000000000; // choose A2D channels you'd like to scan here. we are choosing pin 18
     
     _ADON = 1;    // AD1CON1<15> -- Turn on A/D
 }

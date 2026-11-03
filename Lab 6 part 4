@@ -69,7 +69,7 @@ void config_ad(void)
                   // location corresponding to channel
     _CSCNA = 1;   // AD1CON2<10> -- Scans inputs specified
                   // in AD1CSSx registers
-    _SMPI = 0;	  // AD1CON2<6:2> -- Every 9th conversion sent (number of channels sampled -1)
+    _SMPI = 3;	  // AD1CON2<6:2> -- Every 9th conversion sent (number of channels sampled -1)
                   // to buffer (if sampling 10 channels)
     _ALTS = 0;    // AD1CON2<0> -- Sample MUXA only
     
@@ -80,7 +80,7 @@ void config_ad(void)
     _ADCS = 0b00000011;    // AD1CON3<7:0> -- TAD needs to be at least 600 ns. Thus, _ADCS = 0b00000010 will give us the fastest AD clock given a 4 MHz system clock. 0b00000011 is slower than we could go, but still fast enough for our needs.
 
     // AD1CSS registers
-    AD1CSSL = 0b0000000000000000; // choose A2D channels you'd like to scan here. we are choosing pin 18
+    AD1CSSL = 0b0011110000000000; // choose A2D channels you'd like to scan here. we are choosing pin 15,16,17,& 18 which are associated with AN12,AN11,AN10,AN9 respectively
     
     _ADON = 1;    // AD1CON1<15> -- Turn on A/D
 }

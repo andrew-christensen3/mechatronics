@@ -75,14 +75,14 @@ int main(void) {
 
     OC1RS = 166;  
     OC1R = 0;     
-    _TRISB1 = 0;
-    _LATA2 = 0; //pin 4 as dir
+    _TRISB2 = 0;
+    _LATA2 = 0; //pin 7 as dir
     _LATA1 = 0; //pin 3 as dir
     
     while(1){
         if (_RB2 == 0) {  //PIN 6
             
-            _LATB1 = 0;  //pin 5
+            _LATB2 = 0;  //pin 5
             
             forward();
             turn90();

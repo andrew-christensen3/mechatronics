@@ -145,7 +145,7 @@ int main(void) {
         theVoltage[17] = (double)ADC1BUF10/4095.0 * 3.3; // Pin 17 = left QRD
         theVoltage[16] = (double)ADC1BUF11/4095.0 * 3.3; // Pin 16 = Center QRD
         theVoltage[15] = (double)ADC1BUF12/4095.0 * 3.3; // Pin 15 = Right QRD
-        Line_Threshold_Voltage = 1.5 //volts
+        Line_Threshold_Voltage = 1.5 //volts. change this according to the low pass filter V_out
         
         if (theVoltage[17] < Line_Threshold_Voltage && theVoltage[16] > Line_Threshold_Voltage) {
             // QRD 17 will be on the line, so it will go low and the QRD 16 should go high because it is off the line. 

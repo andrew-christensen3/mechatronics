@@ -95,7 +95,7 @@ void config_ad(void)
 }
 
 // setting up the 
-#define STD_PWM 166
+#define STD_PWM 500
 int SLOW_DC = STD_PWM/2;
 int FAST_DC = STD_PWM;
 
@@ -159,17 +159,15 @@ int main(void) {
         switch (state)
         {
             case Forward:
+                _LATA1 = 1;  //DIR Pin 3 Right Wheel
+                _LATA2 = 0;  //DIR Pin 7 Left Wheel
                 if (LeftQRD < Line_Threshold_Voltage && MidQRD > Line_Threshold_Voltage) {
                     // QRD 17 will be on the line, so it will go low and the QRD 16 should go high because it is off the line. 
                     // this will cause the robot to turn right
                     OC1RS = STD_PWM;  //Right Wheel
                     OC1R = SLOW_DC;
-                    _LATA1 = 1;  //Pin 3
-                    _LATB2 = 0;  //Pin 6
                     OC3RS = STD_PWM;  //Left Wheel
-                    OC3R = FAST_DC;
-                    _LATA2 = 1; //Pin 7
-                    _LATB2 = 0;
+                    OC3R = FAST_DC; 
                     state = Right;
                 }
 
@@ -185,6 +183,8 @@ int main(void) {
                 break;
 
             case Right:
+                _LATA1 = 1;  //DIR Pin 3 Right Wheel
+                _LATA2 = 0;  //DIR Pin 7 Left Wheel
                 if (LeftQRD > Line_Threshold_Voltage && MidQRD < Line_Threshold_Voltage) {
                     // This will turn right until the left QRD is over the black and middle is over the white line
                     OC1RS = STD_PWM;  //Right Wheel
@@ -196,6 +196,8 @@ int main(void) {
                 break;
 
             case Left:
+                _LATA1 = 1;  //DIR Pin 3 Right Wheel
+                _LATA2 = 0;  //DIR Pin 7 Left Wheel
                 if (RightQRD > Line_Threshold_Voltage && MidQRD < Line_Threshold_Voltage) {
                     // 
                     OC1RS = STD_PWM;  //Right Wheel

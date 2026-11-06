@@ -139,7 +139,7 @@ int main(void) {
     
     static double theVoltage[12];
 
-    enum (Forward, Left, Right, Stop) state; // potentially add a stop state
+    enum {Forward, Left, Right, Stop} state; // potentially add a stop state
         state = Stop;
         OC1RS = 0; // Right Stepper motor PWM
         OC1R = 0; // Right Stepper motor Duty Cycle
@@ -151,10 +151,10 @@ int main(void) {
 
         //QRD voltage calculation. TAs recommended using low pass filters to prevent unneeded noise from getting through and causing problems
 //        ColorsensingQRD = (double)ADC1BUF9/4095.0 * 3.3;  // Pin 18 = Ball sensing QRD
-        LeftQRD = (double)ADC1BUF10/4095.0 * 3.3; // Pin 17 = left QRD
-        MidQRD = (double)ADC1BUF11/4095.0 * 3.3; // Pin 16 = Middle QRD
-        RightQRD = (double)ADC1BUF12/4095.0 * 3.3; // Pin 15 = Right QRD
-        Line_Threshold_Voltage = 1.5 //volts. change this according to the low pass filter V_out
+        double LeftQRD = (double)ADC1BUF10/4095.0 * 3.3; // Pin 17 = left QRD
+        double MidQRD = (double)ADC1BUF11/4095.0 * 3.3; // Pin 16 = Middle QRD
+        double RightQRD = (double)ADC1BUF12/4095.0 * 3.3; // Pin 15 = Right QRD
+        double Line_Threshold_Voltage = 1.5 //volts. change this according to the low pass filter V_out
 
         switch (state)
         {

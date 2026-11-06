@@ -89,7 +89,7 @@ void config_ad(void)
     _ADCS = 0b00000011;    // AD1CON3<7:0> -- TAD needs to be at least 600 ns. Thus, _ADCS = 0b00000010 will give us the fastest AD clock given a 4 MHz system clock. 0b00000011 is slower than we could go, but still fast enough for our needs.
 
     // AD1CSS registers
-    AD1CSSL = 0b0011110000000000; // choose A2D channels you'd like to scan here. we are choosing pin 15,16,17,& 18 which are associated with AN12,AN11,AN10,AN9 respectively
+    AD1CSSL = 0b0001110000000000; // choose A2D channels you'd like to scan here. we are choosing pin 15,16,17,& 18 which are associated with AN12,AN11,AN10,AN9 respectively
     
     _ADON = 1;    // AD1CON1<15> -- Turn on A/D
 }
@@ -102,7 +102,7 @@ int FAST_DC = STD_PWM;
 
 int main(void) {
     
-    OC1CON2bits.SYNCSEL = 0x1F;  //sets pin 14 as a pwm
+    OC1CON2bits.SYNCSEL = 0x1F;  //sets pin 14 as a pwm. Right Motor
     OC1CON1bits.OCTSEL = 0b111;
     OC1CON1bits.OCM = 0b110;
     OC1CON2bits.OCTRIG = 0;
@@ -112,7 +112,7 @@ int main(void) {
     OC2CON1bits.OCM = 0b110;
     OC2CON2bits.OCTRIG = 0;
 
-    OC3CON2bits.SYNCSEL = 0x1F;  //sets pin 5 as a pwm
+    OC3CON2bits.SYNCSEL = 0x1F;  //sets pin 5 as a pwm. Left Motor
     OC3CON1bits.OCTSEL = 0b111;
     OC3CON1bits.OCM = 0b110;
     OC3CON2bits.OCTRIG = 0;
@@ -162,19 +162,23 @@ int main(void) {
                 if (LeftQRD < Line_Threshold_Voltage && MidQRD > Line_Threshold_Voltage) {
                     // QRD 17 will be on the line, so it will go low and the QRD 16 should go high because it is off the line. 
                     // this will cause the robot to turn right
-                    OC1RS = STD_PWM;
+                    OC1RS = STD_PWM;  //Right Wheel
                     OC1R = SLOW_DC;
-                    OC3RS = STD_PWM;
+                    _LATA1 = 1;  //Pin 3
+                    _LATB2 = 0;  //Pin 6
+                    OC3RS = STD_PWM;  //Left Wheel
                     OC3R = FAST_DC;
+                    _LATA2 = 1; //Pin 7
+                    _LATB2 = 0;
                     state = Right;
                 }
 
                 else if (RightQRD < Line_Threshold_Voltage && MidQRD > Line_Threshold_Voltage) {
                     // QRD 15 will be on the line, so it will go low and the QRD 16 should go high because it is off the line. 
                     // this will cause the robot to turn left
-                    OC1RS = STD_PWM;
+                    OC1RS = STD_PWM;  //Right Wheel
                     OC1R = FAST_DC; // keep speed up right motor to turn robot left
-                    OC3RS = STD_PWM;
+                    OC3RS = STD_PWM;  //Left Wheel
                     OC3R = SLOW_DC; // slow down left motor to turn the robot left
                     state = Left;
                 }
@@ -183,9 +187,9 @@ int main(void) {
             case Right:
                 if (LeftQRD > Line_Threshold_Voltage && MidQRD < Line_Threshold_Voltage) {
                     // This will turn right until the left QRD is over the black and middle is over the white line
-                    OC1RS = STD_PWM;
+                    OC1RS = STD_PWM;  //Right Wheel
                     OC1R = FAST_DC; // FAST_DC = STD_PWM   
-                    OC3RS = STD_PWM;
+                    OC3RS = STD_PWM;  //Left Wheel
                     OC3R = FAST_DC;
                     state = Forward;
                 }
@@ -194,9 +198,9 @@ int main(void) {
             case Left:
                 if (RightQRD > Line_Threshold_Voltage && MidQRD < Line_Threshold_Voltage) {
                     // 
-                    OC1RS = STD_PWM;
+                    OC1RS = STD_PWM;  //Right Wheel
                     OC1R = FAST_DC; // FAST_DC = STD_PWM   
-                    OC3RS = STD_PWM;
+                    OC3RS = STD_PWM;  //Left Wheel
                     OC3R = FAST_DC;
                     state = Forward;
                     
@@ -205,9 +209,9 @@ int main(void) {
 
             case Stop:
                 if (MidQRD < Line_Threshold_Voltage) {
-                    OC1RS = STD_PWM;
+                    OC1RS = STD_PWM;  //Right Wheel
                     OC1R = FAST_DC; // FAST_DC = STD_PWM   
-                    OC3RS = STD_PWM;
+                    OC3RS = STD_PWM;  //Left Wheel
                     OC3R = FAST_DC;
                     state = Forward;
                 }

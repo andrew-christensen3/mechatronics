@@ -106,6 +106,10 @@ void config_ad(void)
     _ADON = 1;    // AD1CON1<15> -- Turn on A/D
 }
 
+// setting up the 
+int STD_PWM = 166;
+int SLOW_DC = STD_PWM/2;
+int FAST_DC = STD_PWM;
 
 
 int main(void) {
@@ -114,9 +118,18 @@ int main(void) {
     OC1CON1bits.OCTSEL = 0b111;
     OC1CON1bits.OCM = 0b110;
     OC1CON2bits.OCTRIG = 0;
+
+    OC2CON2bits.SYNCSEL = 0x1F;  //sets pin 4 as a pwm
+    OC2CON1bits.OCTSEL = 0b111;
+    OC2CON1bits.OCM = 0b110;
+    OC2CON2bits.OCTRIG = 0;
+
+    OC3CON2bits.SYNCSEL = 0x1F;  //sets pin 5 as a pwm
+    OC3CON1bits.OCTSEL = 0b111;
+    OC3CON1bits.OCM = 0b110;
+    OC3CON2bits.OCTRIG = 0;
     
   
-    
     _RCDIV = 0b00;   //sets postscalor to 1
     
     ANSA = 0; //MAKES IT DIGITAL
@@ -126,11 +139,11 @@ int main(void) {
     _TRISA1 = 0;  //sets pin 3 as output Pin 3 is right wheel
     _TRISB2 = 1;  //pin 6 button input
 
-    OC1RS = 166;  
-    OC1R = 0;     
-    _TRISB1 = 0;
-    _LATA2 = 0; //pin 4 as dir
-    _LATA1 = 0; //pin 3 as dir
+//    OC1RS = 166;  
+//    OC1R = 0;     
+//    _TRISB1 = 0;
+//    _LATA2 = 0; //pin 4 as dir
+//    _LATA1 = 0; //pin 3 as dir
 
     // Configure A/D
     config_pins_for_ad();
@@ -138,27 +151,80 @@ int main(void) {
     
     static double theVoltage[12];
 
-    while(1){
-        
-        //QRD voltage calculation. TAs recommended using low pass filters to prevent unneeded noise from getting through and causing problems
-        theVoltage[18] = (double)ADC1BUF9/4095.0 * 3.3;  // Pin 18 = Ball sensing QRD
-        theVoltage[17] = (double)ADC1BUF10/4095.0 * 3.3; // Pin 17 = left QRD
-        theVoltage[16] = (double)ADC1BUF11/4095.0 * 3.3; // Pin 16 = Center QRD
-        theVoltage[15] = (double)ADC1BUF12/4095.0 * 3.3; // Pin 15 = Right QRD
-        Line_Threshold_Voltage = 1.5 //volts. change this according to the low pass filter V_out
-        
-        if (theVoltage[17] < Line_Threshold_Voltage && theVoltage[16] > Line_Threshold_Voltage) {
-            // QRD 17 will be on the line, so it will go low and the QRD 16 should go high because it is off the line. 
-            // this will cause the robot to turn right
-            OC1RS = 166;
-            OC1R = OC1RS;
-        }
+    enum (Forward, Left, Right) state; // potentially add a stop state
+        state = Stop;
+        OC1RS = 0; // Right Stepper motor PWM
+        OC1R = 0; // Right Stepper motor Duty Cycle
+        OC3RS = 0; // Left Stepper motor PWM
+        OC3R = 0; // Left Stepper motor Duty Cycle
 
-        if else (theVoltage[15] < Line_Threshold_Voltage && theVoltage[16] > Line_Threshold_Voltage) {
-            // QRD 15 will be on the line, so it will go low and the QRD 16 should go high because it is off the line. 
-            // this will cause the robot to turn left
-            OC1RS = 166;
-            OC1R = OC1RS;
+
+    while(1){
+
+        //QRD voltage calculation. TAs recommended using low pass filters to prevent unneeded noise from getting through and causing problems
+        ColorsensingQRD = (double)ADC1BUF9/4095.0 * 3.3;  // Pin 18 = Ball sensing QRD
+        LeftQRD = (double)ADC1BUF10/4095.0 * 3.3; // Pin 17 = left QRD
+        MidQRD = (double)ADC1BUF11/4095.0 * 3.3; // Pin 16 = Middle QRD
+        RightQRD = (double)ADC1BUF12/4095.0 * 3.3; // Pin 15 = Right QRD
+        Line_Threshold_Voltage = 1.5 //volts. change this according to the low pass filter V_out
+
+        switch (state)
+        {
+            case Forward:
+                if (LeftQRD < Line_Threshold_Voltage && MidQRD > Line_Threshold_Voltage) {
+                    // QRD 17 will be on the line, so it will go low and the QRD 16 should go high because it is off the line. 
+                    // this will cause the robot to turn right
+                    OC1RS = STD_PWM;
+                    OC1R = SLOW_DC;
+                    OC3RS = STD_PWM;
+                    OC3R = FAST_DC;
+                    state = Right;
+                }
+
+                else if (RightQRD < Line_Threshold_Voltage && MidQRD > Line_Threshold_Voltage) {
+                    // QRD 15 will be on the line, so it will go low and the QRD 16 should go high because it is off the line. 
+                    // this will cause the robot to turn left
+                    OC1RS = STD_PWM;
+                    OC1R = FAST_DC; // keep speed up right motor to turn robot left
+                    OC3RS = STD_PWM;
+                    OC3R = SLOW_DC; // slow down left motor to turn the robot left
+                    state = Left;
+                }
+                break;
+
+            case Right:
+                if (LeftQRD > Line_Threshold_Voltage && MidQRD < Line_Threshold_Voltage) {
+                    // This will turn right until the left QRD is over the black and middle is over the white line
+                    OC1RS = STD_PWM;
+                    OC1R = FAST_DC; // FAST_DC = STD_PWM   
+                    OC3RS = STD_PWM;
+                    OC3R = FAST_DC;
+                    state = Forward;
+                }
+                break;
+
+            case Left:
+                if (RightQRD > Line_Threshold_Voltage && MidQRD < Line_Threshold_Voltage) {
+                    // 
+                    OC1RS = STD_PWM;
+                    OC1R = FAST_DC; // FAST_DC = STD_PWM   
+                    OC3RS = STD_PWM;
+                    OC3R = FAST_DC;
+                    state = Forward;
+                    
+                }
+                break;
+
+            case Stop:
+                if (MidQRD < Line_Threshold_Voltage) {
+                    OC1RS = STD_PWM;
+                    OC1R = FAST_DC; // FAST_DC = STD_PWM   
+                    OC3RS = STD_PWM;
+                    OC3R = FAST_DC;
+                    state = Forward;
+                }
+                break;
+
         }
     
     }

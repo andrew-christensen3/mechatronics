@@ -95,7 +95,7 @@ void config_ad(void)
 }
 
 // setting up the 
-int STD_PWM = 166;
+#define STD_PWM 166
 int SLOW_DC = STD_PWM/2;
 int FAST_DC = STD_PWM;
 
@@ -154,7 +154,7 @@ int main(void) {
         double LeftQRD = (double)ADC1BUF10/4095.0 * 3.3; // Pin 17 = left QRD
         double MidQRD = (double)ADC1BUF11/4095.0 * 3.3; // Pin 16 = Middle QRD
         double RightQRD = (double)ADC1BUF12/4095.0 * 3.3; // Pin 15 = Right QRD
-        double Line_Threshold_Voltage = 1.5 //volts. change this according to the low pass filter V_out
+        double Line_Threshold_Voltage = 1.5; //volts. change this according to the low pass filter V_out
 
         switch (state)
         {

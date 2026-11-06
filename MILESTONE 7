@@ -96,8 +96,8 @@ void config_ad(void)
 
 // setting up the 
 #define STD_PWM 500
-int SLOW_DC = STD_PWM/2;
-int FAST_DC = STD_PWM;
+int SLOW_DC = STD_PWM/16;
+int FAST_DC = STD_PWM/2;
 
 
 int main(void) {
@@ -140,11 +140,11 @@ int main(void) {
     static double theVoltage[12];
 
     enum {Forward, Left, Right, Stop} state; // potentially add a stop state
-        state = Stop;
-        OC1RS = 0; // Right Stepper motor PWM
-        OC1R = 0; // Right Stepper motor Duty Cycle
-        OC3RS = 0; // Left Stepper motor PWM
-        OC3R = 0; // Left Stepper motor Duty Cycle
+        state = Forward;
+        OC1RS = STD_PWM; // Right Stepper motor PWM
+        OC1R = FAST_DC; // Right Stepper motor Duty Cycle
+        OC3RS = STD_PWM; // Left Stepper motor PWM
+        OC3R = FAST_DC; // Left Stepper motor Duty Cycle
 
 
     while(1){
@@ -155,36 +155,44 @@ int main(void) {
         double MidQRD = (double)ADC1BUF11/4095.0 * 3.3; // Pin 16 = Middle QRD
         double RightQRD = (double)ADC1BUF12/4095.0 * 3.3; // Pin 15 = Right QRD
         double Line_Threshold_Voltage = 1.5; //volts. change this according to the low pass filter V_out
-
+//        OC1RS = STD_PWM;  //Right Wheel
+//        OC1R = SLOW_DC;
+//        OC3RS = STD_PWM;  //Left Wheel 
+//        OC3R = FAST_DC;
+        _LATA1 = 1;  //DIR Pin 3 Right Wheel
+        _LATA2 = 0;  //DIR Pin 7 Left Wheel
+        
         switch (state)
         {
             case Forward:
-                _LATA1 = 1;  //DIR Pin 3 Right Wheel
-                _LATA2 = 0;  //DIR Pin 7 Left Wheel
-                if (LeftQRD < Line_Threshold_Voltage && MidQRD > Line_Threshold_Voltage) {
+//                if (MidQRD < Line_Threshold_Voltage){
+//                    OC1RS = STD_PWM;  //Right Wheel
+//                    OC1R = SLOW_DC;
+//                    OC3RS = STD_PWM;  //Left Wheel
+//                    OC3R = FAST_DC;
+//                }
+                if (LeftQRD < Line_Threshold_Voltage && MidQRD < Line_Threshold_Voltage) {
                     // QRD 17 will be on the line, so it will go low and the QRD 16 should go high because it is off the line. 
                     // this will cause the robot to turn right
-                    OC1RS = STD_PWM;  //Right Wheel
-                    OC1R = SLOW_DC;
-                    OC3RS = STD_PWM;  //Left Wheel
-                    OC3R = FAST_DC; 
+                    OC1RS = 100;//STD_PWM;  //Right Wheel
+                    OC1R = 50;//SLOW_DC;
+                    OC3RS = 500;//STD_PWM;  //Left Wheel
+                    OC3R = 250;//FAST_DC; 
                     state = Right;
                 }
 
-                else if (RightQRD < Line_Threshold_Voltage && MidQRD > Line_Threshold_Voltage) {
+                else if (RightQRD < Line_Threshold_Voltage && MidQRD < Line_Threshold_Voltage) {
                     // QRD 15 will be on the line, so it will go low and the QRD 16 should go high because it is off the line. 
                     // this will cause the robot to turn left
-                    OC1RS = STD_PWM;  //Right Wheel
-                    OC1R = FAST_DC; // keep speed up right motor to turn robot left
-                    OC3RS = STD_PWM;  //Left Wheel
-                    OC3R = SLOW_DC; // slow down left motor to turn the robot left
+                    OC1RS = 500;//STD_PWM;  //Right Wheel
+                    OC1R = 250;//FAST_DC; // keep speed up right motor to turn robot left
+                    OC3RS = 100;//STD_PWM;  //Left Wheel
+                    OC3R = 50;//SLOW_DC; // slow down left motor to turn the robot left
                     state = Left;
                 }
                 break;
 
             case Right:
-                _LATA1 = 1;  //DIR Pin 3 Right Wheel
-                _LATA2 = 0;  //DIR Pin 7 Left Wheel
                 if (LeftQRD > Line_Threshold_Voltage && MidQRD < Line_Threshold_Voltage) {
                     // This will turn right until the left QRD is over the black and middle is over the white line
                     OC1RS = STD_PWM;  //Right Wheel
@@ -196,8 +204,6 @@ int main(void) {
                 break;
 
             case Left:
-                _LATA1 = 1;  //DIR Pin 3 Right Wheel
-                _LATA2 = 0;  //DIR Pin 7 Left Wheel
                 if (RightQRD > Line_Threshold_Voltage && MidQRD < Line_Threshold_Voltage) {
                     // 
                     OC1RS = STD_PWM;  //Right Wheel
@@ -208,9 +214,8 @@ int main(void) {
                     
                 }
                 break;
-
             case Stop:
-                if (MidQRD < Line_Threshold_Voltage) {
+                if (RightQRD > Line_Threshold_Voltage && LeftQRD > Line_Threshold_Voltage){//MidQRD < Line_Threshold_Voltage) {
                     OC1RS = STD_PWM;  //Right Wheel
                     OC1R = FAST_DC; // FAST_DC = STD_PWM   
                     OC3RS = STD_PWM;  //Left Wheel
@@ -219,7 +224,7 @@ int main(void) {
                 }
                 break;
 
-        }
+       }
     
     }
     return 0;

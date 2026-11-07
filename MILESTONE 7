@@ -140,7 +140,9 @@ int main(void) {
     static double theVoltage[12];
 
     // setting up the speeds of the motors
-    int BaseSpeed = 1248;
+    int TurtSpeed = 2446;
+    int SlowSpeed = 2270;
+    int BaseSpeed = 1448;
     int MedSpeed = 625;
     int FastSpeed = 450;
     
@@ -158,7 +160,7 @@ int main(void) {
         double LeftQRD = (double)ADC1BUF10/4095.0 * 3.3; // Pin 17 = left QRD
         double MidQRD = (double)ADC1BUF11/4095.0 * 3.3; // Pin 16 = Middle QRD
         double RightQRD = (double)ADC1BUF12/4095.0 * 3.3; // Pin 15 = Right QRD
-        double Line_Threshold_Voltage = 1.5; //volts. change this according to the low pass filter V_out
+        double Line_Threshold_Voltage = 1.8; //volts. change this according to the low pass filter V_out
         double right_QRD_threshold = 2;
 
         _LATA1 = 1;  //DIR Pin 3 Right Wheel
@@ -175,7 +177,7 @@ int main(void) {
                 if (LeftQRD < Line_Threshold_Voltage && MidQRD < Line_Threshold_Voltage) {
                     // QRD 17 will be on the line, so it will go low and the QRD 16 should go high because it is off the line. 
                     // this will cause the robot to turn right
-                    OC1RS = BaseSpeed; // Right Stepper motor PWM
+                    OC1RS = SlowSpeed; // Right Stepper motor PWM
                     OC1R = OC1RS/2; // Right Stepper motor Duty Cycle
                     OC3RS = MedSpeed; // Left Stepper motor PWM
                     OC3R = OC3RS/2; // Left Stepper motor Duty Cycle 
@@ -190,7 +192,7 @@ int main(void) {
                     // this will cause the robot to turn left
                     OC1RS = MedSpeed; // Right Stepper motor PWM
                     OC1R = OC1RS/2; // Right Stepper motor Duty Cycle
-                    OC3RS = BaseSpeed; // Left Stepper motor PWM
+                    OC3RS = SlowSpeed; // Left Stepper motor PWM
                     OC3R = OC3RS/2; // Left Stepper motor Duty Cycle
                     _LATB7 = 0; // turns on LED 1
                     _LATB8 = 0;
@@ -219,7 +221,7 @@ int main(void) {
                 
                 else if (LeftQRD < Line_Threshold_Voltage && MidQRD > Line_Threshold_Voltage){
                     // if the left QRD is on white and middle is on black, go to ExtremeRight
-                    OC1RS = BaseSpeed; // Right Stepper motor PWM
+                    OC1RS = TurtSpeed; // Right Stepper motor PWM
                     OC1R = OC1RS/2; // Right Stepper motor Duty Cycle
                     OC3RS = FastSpeed; // Left Stepper motor PWM
                     OC3R = OC3RS/2; // Left Stepper motor Duty Cycle
@@ -234,7 +236,7 @@ int main(void) {
                 if (LeftQRD < Line_Threshold_Voltage && MidQRD < Line_Threshold_Voltage) {
                     // QRD 17 will be on the line, so it will go low and the QRD 16 should go high because it is off the line. 
                     // this will cause the robot to turn right
-                    OC1RS = BaseSpeed; // Right Stepper motor PWM
+                    OC1RS = SlowSpeed; // Right Stepper motor PWM
                     OC1R = OC1RS/2; // Right Stepper motor Duty Cycle
                     OC3RS = MedSpeed; // Left Stepper motor PWM
                     OC3R = OC3RS/2; // Left Stepper motor Duty Cycle
@@ -243,6 +245,18 @@ int main(void) {
                     _LATB9 = 0;
                     state = Right;
                 }
+                
+//                else if (RightQRD < right_QRD_threshold && MidQRD < Line_Threshold_Voltage && LeftQRD < Line_Threshold_Voltage){
+//                    // if the Right QRD is on white and middle is on black, go to ExtremeLeft
+//                    OC1RS = FastSpeed; // Right Stepper motor PWM
+//                    OC1R = OC1RS/2; // Right Stepper motor Duty Cycle
+//                    OC3RS = TurtSpeed; // Left Stepper motor PWM
+//                    OC3R = OC3RS/2; // Left Stepper motor Duty Cycle
+//                    _LATB7 = 0; // turns on LED 1 (pin 11)
+//                    _LATB8 = 1; // turns on LED 2 (pin 12)
+//                    _LATB9 = 1; // turns on LED 3 (pin 13)
+//                    state = ExtremeLeft;
+//                }
                 break;
 
             case Left:
@@ -268,7 +282,7 @@ int main(void) {
                     // if the Right QRD is on white and middle is on black, go to ExtremeLeft
                     OC1RS = FastSpeed; // Right Stepper motor PWM
                     OC1R = OC1RS/2; // Right Stepper motor Duty Cycle
-                    OC3RS = BaseSpeed; // Left Stepper motor PWM
+                    OC3RS = TurtSpeed; // Left Stepper motor PWM
                     OC3R = OC3RS/2; // Left Stepper motor Duty Cycle
                     _LATB7 = 0; // turns on LED 1 (pin 11)
                     _LATB8 = 1; // turns on LED 2 (pin 12)
@@ -284,15 +298,31 @@ int main(void) {
                     // this will cause the robot to turn left
                     OC1RS = MedSpeed; // Right Stepper motor PWM
                     OC1R = OC1RS/2; // Right Stepper motor Duty Cycle
-                    OC3RS = BaseSpeed; // Left Stepper motor PWM
+                    OC3RS = SlowSpeed; // Left Stepper motor PWM
                     OC3R = OC3RS/2; // Left Stepper motor Duty Cycle
                     _LATB9 = 1; // turns on LED 3
                     _LATB8 = 0;
                     _LATB7 = 0;
                     state = Left;
                 }
+                
+//                else if (LeftQRD < Line_Threshold_Voltage && MidQRD < Line_Threshold_Voltage && RightQRD < right_QRD_threshold){
+//                    // if the left QRD is on white and middle is on black, go to ExtremeRight
+//                    OC1RS = TurtSpeed; // Right Stepper motor PWM
+//                    OC1R = OC1RS/2; // Right Stepper motor Duty Cycle
+//                    OC3RS = FastSpeed; // Left Stepper motor PWM
+//                    OC3R = OC3RS/2; // Left Stepper motor Duty Cycle
+//                    _LATB7 = 1; // turns on LED 1
+//                    _LATB8 = 1;
+//                    _LATB9 = 0;
+//                    state = ExtremeRight;
+//                }
                 break;
                 
+            default:
+                state = Forward;
+                break;
+                       
 
        }
     

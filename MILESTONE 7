@@ -161,7 +161,7 @@ int main(void) {
         double MidQRD = (double)ADC1BUF11/4095.0 * 3.3; // Pin 16 = Middle QRD
         double RightQRD = (double)ADC1BUF12/4095.0 * 3.3; // Pin 15 = Right QRD
         double Line_Threshold_Voltage = 1.8; //volts. change this according to the low pass filter V_out
-        double right_QRD_threshold = 2;
+        double right_QRD_threshold = 2.3;
 
         _LATA1 = 1;  //DIR Pin 3 Right Wheel
         _LATA2 = 0;  //DIR Pin 7 Left Wheel
@@ -177,27 +177,27 @@ int main(void) {
                 if (LeftQRD < Line_Threshold_Voltage && MidQRD < Line_Threshold_Voltage) {
                     // QRD 17 will be on the line, so it will go low and the QRD 16 should go high because it is off the line. 
                     // this will cause the robot to turn right
-                    OC1RS = SlowSpeed; // Right Stepper motor PWM
+                    OC1RS = MedSpeed; // Right Stepper motor PWM
                     OC1R = OC1RS/2; // Right Stepper motor Duty Cycle
-                    OC3RS = MedSpeed; // Left Stepper motor PWM
+                    OC3RS = SlowSpeed; // Left Stepper motor PWM
                     OC3R = OC3RS/2; // Left Stepper motor Duty Cycle 
                     _LATB7 = 1; // turns on LED 1 (pin 11)
                     _LATB8 = 0; // turns on LED 2 (pin 12)
                     _LATB9 = 0;// turns on LED 3 (pin 13)
-                    state = Right;
+                    state = Left;
                 }
 
                 else if (RightQRD < right_QRD_threshold && MidQRD < Line_Threshold_Voltage) {
                     // QRD 15 will be on the line, so it will go low and the QRD 16 should go high because it is off the line. 
                     // this will cause the robot to turn left
-                    OC1RS = MedSpeed; // Right Stepper motor PWM
+                    OC1RS = SlowSpeed; // Right Stepper motor PWM
                     OC1R = OC1RS/2; // Right Stepper motor Duty Cycle
-                    OC3RS = SlowSpeed; // Left Stepper motor PWM
+                    OC3RS = MedSpeed; // Left Stepper motor PWM
                     OC3R = OC3RS/2; // Left Stepper motor Duty Cycle
                     _LATB7 = 0; // turns on LED 1
                     _LATB8 = 0;
                     _LATB9 = 1;
-                    state = Left;
+                    state = Right;
                 }
                 break;
 
@@ -207,7 +207,7 @@ int main(void) {
 //                _LATB8 = 0;
 //                _LATB9 = 0;
                 
-                if (LeftQRD > Line_Threshold_Voltage && MidQRD < Line_Threshold_Voltage) {
+                if (LeftQRD > Line_Threshold_Voltage && MidQRD < Line_Threshold_Voltage && RightQRD > Line_Threshold_Voltage) {
                     // This will turn right until the left QRD is over the black and middle is over the white line
                     OC1RS = BaseSpeed; // Right Stepper motor PWM
                     OC1R = OC1RS/2; // Right Stepper motor Duty Cycle
@@ -219,7 +219,7 @@ int main(void) {
                     state = Forward;
                 }
                 
-                else if (LeftQRD < Line_Threshold_Voltage && MidQRD > Line_Threshold_Voltage){
+                else if (RightQRD < Line_Threshold_Voltage && MidQRD > Line_Threshold_Voltage){
                     // if the left QRD is on white and middle is on black, go to ExtremeRight
                     OC1RS = TurtSpeed; // Right Stepper motor PWM
                     OC1R = OC1RS/2; // Right Stepper motor Duty Cycle
@@ -233,7 +233,7 @@ int main(void) {
                 break;
                 
             case ExtremeRight:
-                if (LeftQRD < Line_Threshold_Voltage && MidQRD < Line_Threshold_Voltage) {
+                if (RightQRD < Line_Threshold_Voltage && MidQRD < Line_Threshold_Voltage) {
                     // QRD 17 will be on the line, so it will go low and the QRD 16 should go high because it is off the line. 
                     // this will cause the robot to turn right
                     OC1RS = SlowSpeed; // Right Stepper motor PWM
@@ -265,7 +265,7 @@ int main(void) {
 //                _LATB8 = 0;
 //                _LATB9 = 1;
 //                
-                if (RightQRD > right_QRD_threshold && MidQRD < Line_Threshold_Voltage) {
+                if (LeftQRD > right_QRD_threshold && MidQRD < Line_Threshold_Voltage && RightQRD > right_QRD_threshold) {
                     // 
                     OC1RS = BaseSpeed; // Right Stepper motor PWM
                     OC1R = OC1RS/2; // Right Stepper motor Duty Cycle
@@ -278,7 +278,7 @@ int main(void) {
                     
                 }
                 
-                else if (RightQRD < right_QRD_threshold && MidQRD > Line_Threshold_Voltage){
+                else if (LeftQRD < right_QRD_threshold && MidQRD > Line_Threshold_Voltage){
                     // if the Right QRD is on white and middle is on black, go to ExtremeLeft
                     OC1RS = FastSpeed; // Right Stepper motor PWM
                     OC1R = OC1RS/2; // Right Stepper motor Duty Cycle
@@ -293,7 +293,7 @@ int main(void) {
                 
             case ExtremeLeft:
                 
-                if (RightQRD < right_QRD_threshold && MidQRD < Line_Threshold_Voltage) {
+                if (LeftQRD < right_QRD_threshold && MidQRD < Line_Threshold_Voltage) {
                     // QRD 15 will be on the line, so it will go low and the QRD 16 should go high because it is off the line. 
                     // this will cause the robot to turn left
                     OC1RS = MedSpeed; // Right Stepper motor PWM

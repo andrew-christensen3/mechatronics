@@ -15,7 +15,7 @@
 
 #pragma config ICS = PGx3
 
-#pragma config FNOSC = LPFRC    //this is 500kHz
+#pragma config FNOSC = FRCDIV    //New FRCDIV  // Now its 8 MHz         OLD:  LPFRC    //this is 500kHz
 
 #define WHEEL_DIAMETER 90    //diamiter in mm
 #define TURN90_MM    200 //(honestly just mess with this number till it works) 
@@ -119,6 +119,7 @@ int main(void) {
     _TRISA6 = 0;  // sets it to output for pwm, 
     _TRISA2 = 0;  //set this to pin 7    Pin 7 is left wheel
     _TRISA1 = 0;  //sets pin 3 as output Pin 3 is right wheel
+    //_TRISB0 = 0;  //Set Pin 4 as output
     
     // LED Testing Pins
     //digital
@@ -139,12 +140,18 @@ int main(void) {
     
     static double theVoltage[12];
 
-    // setting up the speeds of the motors
-    int TurtSpeed = 2446;
-    int SlowSpeed = 2270;
-    int BaseSpeed = 1448;
-    int MedSpeed = 625;
-    int FastSpeed = 450;
+    // setting up the speeds of the motors  OLDS ON TOP, NEWS ON BOTTOM
+//    int TurtSpeed = 2446;
+//    int SlowSpeed = 2270;
+//    int BaseSpeed = 1448;
+//    int MedSpeed = 625;
+//    int FastSpeed = 450;
+    
+    int TurtSpeed = 0;
+    int SlowSpeed = 0;
+    int BaseSpeed = 10000;
+    int MedSpeed = 9000;
+    int FastSpeed = 8000;
     
     enum {Forward, Left, Right, ExtremeRight, ExtremeLeft} state; // potentially add a stop state
         state = Forward;
@@ -163,8 +170,9 @@ int main(void) {
         double Line_Threshold_Voltage = 1.8; //volts. change this according to the low pass filter V_out
         double right_QRD_threshold = 2.3;
 
-        _LATA1 = 1;  //DIR Pin 3 Right Wheel
+        _LATA1 = 0;  //DIR Pin 3 Right Wheel
         _LATA2 = 0;  //DIR Pin 7 Left Wheel
+        //_LATB0 = 0;  //DISable Off Pin 4
         
         switch (state)
         {
@@ -198,6 +206,28 @@ int main(void) {
                     _LATB8 = 0;
                     _LATB9 = 1;
                     state = Right;
+                }
+                else if (RightQRD < Line_Threshold_Voltage && MidQRD > Line_Threshold_Voltage){
+                    // if the left QRD is on white and middle is on black, go to ExtremeRight
+                    OC1RS = TurtSpeed; // Right Stepper motor PWM
+                    OC1R = OC1RS/2; // Right Stepper motor Duty Cycle
+                    OC3RS = FastSpeed; // Left Stepper motor PWM
+                    OC3R = OC3RS/2; // Left Stepper motor Duty Cycle
+                    _LATB7 = 1; // turns on LED 1
+                    _LATB8 = 1;
+                    _LATB9 = 0;
+                    state = ExtremeRight;
+                }
+                else if (LeftQRD < right_QRD_threshold && MidQRD > Line_Threshold_Voltage){
+                    // if the Right QRD is on white and middle is on black, go to ExtremeLeft
+                    OC1RS = FastSpeed; // Right Stepper motor PWM
+                    OC1R = OC1RS/2; // Right Stepper motor Duty Cycle
+                    OC3RS = TurtSpeed; // Left Stepper motor PWM
+                    OC3R = OC3RS/2; // Left Stepper motor Duty Cycle
+                    _LATB7 = 0; // turns on LED 1 (pin 11)
+                    _LATB8 = 1; // turns on LED 2 (pin 12)
+                    _LATB9 = 1; // turns on LED 3 (pin 13)
+                    state = ExtremeLeft;
                 }
                 break;
 
@@ -246,6 +276,17 @@ int main(void) {
                     state = Right;
                 }
                 
+                if (LeftQRD > Line_Threshold_Voltage && MidQRD < Line_Threshold_Voltage && RightQRD > Line_Threshold_Voltage) {
+                    // This will turn right until the left QRD is over the black and middle is over the white line
+                    OC1RS = BaseSpeed; // Right Stepper motor PWM
+                    OC1R = OC1RS/2; // Right Stepper motor Duty Cycle
+                    OC3RS = BaseSpeed; // Left Stepper motor PWM
+                    OC3R = OC3RS/2; // Left Stepper motor Duty Cycle
+                    _LATB7 = 0; // turns on LED 1
+                    _LATB8 = 1;
+                    _LATB9 = 0;
+                    state = Forward;
+                }
 //                else if (RightQRD < right_QRD_threshold && MidQRD < Line_Threshold_Voltage && LeftQRD < Line_Threshold_Voltage){
 //                    // if the Right QRD is on white and middle is on black, go to ExtremeLeft
 //                    OC1RS = FastSpeed; // Right Stepper motor PWM
@@ -306,6 +347,18 @@ int main(void) {
                     state = Left;
                 }
                 
+                if (LeftQRD > right_QRD_threshold && MidQRD < Line_Threshold_Voltage && RightQRD > right_QRD_threshold) {
+                    // 
+                    OC1RS = BaseSpeed; // Right Stepper motor PWM
+                    OC1R = OC1RS/2; // Right Stepper motor Duty Cycle
+                    OC3RS = BaseSpeed; // Left Stepper motor PWM
+                    OC3R = OC3RS/2; // Left Stepper motor Duty Cycle
+                    _LATB7 = 0; // turns on LED 1
+                    _LATB8 = 1;
+                    _LATB9 = 0;
+                    state = Forward;
+                    
+                }
 //                else if (LeftQRD < Line_Threshold_Voltage && MidQRD < Line_Threshold_Voltage && RightQRD < right_QRD_threshold){
 //                    // if the left QRD is on white and middle is on black, go to ExtremeRight
 //                    OC1RS = TurtSpeed; // Right Stepper motor PWM

@@ -170,7 +170,7 @@ int main(void) {
         double Line_Threshold_Voltage = 1.8; //volts. change this according to the low pass filter V_out
         double right_QRD_threshold = 2.3;
 
-        _LATA1 = 0;  //DIR Pin 3 Right Wheel
+        _LATA1 = 1;  //DIR Pin 3 Right Wheel
         _LATA2 = 0;  //DIR Pin 7 Left Wheel
         //_LATB0 = 0;  //DISable Off Pin 4
         

@@ -1,0 +1,22 @@
+Please Update If Things Change!!!
+
+Pin 1 - Empty
+Pin 2 - Front IR
+Pin 3 - Direction Pin For Right Wheel
+Pin 4 - PWM For Servos
+Pin 5 - PWM For Left Motor
+Pin 6 - WAS Left IR. Should Be Left UltraSonic Sensor NOW. Still In Process Of Updating Code
+Pin 7 - Direction Pin For Left Wheel
+Pin 8 - WAS Right IR. Should be Right UltraSonic Sensor NOW. Still In Process Of Updating Code
+Pin 9 - Disable Pin For Right Motor
+Pin 10 - Disable Pin For Left Motor
+Pin 11 - LED 1
+Pin 12 - LED 2
+Pin 13 - LED 3
+Pin 14 - PWM For Right Motor
+Pin 15 - Right QRD
+Pin 16 - Middle QRD
+Pin 17 - Left QRD
+Pin 18 - Empty
+Pin 19 - GND
+Pin 20 - VCC OR Power

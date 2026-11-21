@@ -38,7 +38,7 @@ void run(float mm) { // assume all lengths in mm and time is in msec
     OC1RS = 10000;
     OC1R = 5000;          //50% duty so motors run
     _delay(time_msec);   //just waits while the motors go
-    //OC1R = 0;            //duty 0 so motors stop
+    OC1R = 0;            //duty 0 so motors stop
 }
 
 void turn90(void) //makes it turn 90 degrees with right turn
@@ -90,8 +90,9 @@ void config_ad(void)
                   // location corresponding to channel
     _CSCNA = 1;   // AD1CON2<10> -- Scans inputs specified
                   // in AD1CSSx registers
-    _SMPI = 3;	  // AD1CON2<6:2> -- Every 3th conversion sent (number of channels sampled -1)
-                  // to buffer (if sampling 4 channels)
+    _SMPI = 5;	  // AD1CON2<6:2> -- Every 5th conversion sent (number of channels sampled -1)
+                  // to buffer (if sampling 6 channels 3 for line following, 1 for ball color
+                  // 2 for wall following)
     _ALTS = 0;    // AD1CON2<0> -- Sample MUXA only
     
     // AD1CON3 register
@@ -101,29 +102,39 @@ void config_ad(void)
     _ADCS = 0b00000011;    // AD1CON3<7:0> -- TAD needs to be at least 600 ns. Thus, _ADCS = 0b00000010 will give us the fastest AD clock given a 4 MHz system clock. 0b00000011 is slower than we could go, but still fast enough for our needs.
 
     // AD1CSS registers
-    AD1CSSL = 0b0101110000010000; // choose A2D channels you'd like to scan here. we are choosing pin 15,16,17,& 18 which are associated with AN12,AN11,AN10,AN9 respectively
+    AD1CSSL = 0b0101111000010000; // choose A2D channels you'd like to scan here. we are choosing pin 15,16,17,& 18 which are associated with AN12,AN11,AN10,AN9 respectively
                                   //Pin 6 and 8 are also chosen which are AN4 and AN14 respectively
     _ADON = 1;    // AD1CON1<15> -- Turn on A/D
 }
 
 int main(void) {
+    _RCDIV = 0b00;   //sets postscalor to 1
     
     OC1CON2bits.SYNCSEL = 0x1F;  //sets pin 14 as a pwm. Right Motor
     OC1CON1bits.OCTSEL = 0b111;
     OC1CON1bits.OCM = 0b110;
     OC1CON2bits.OCTRIG = 0;
 
+    //Set up timer for servos
+    /*our clock speed is 4MHz to do a 50Hz PWM period*/
+    T2CONbits.TCS = 0; //internal clock
+    T2CONbits.TCKPS = 0b01; //1:8 prescale
+    PR2 = 10000; // Timer period of 20ms assuming 
+    TMR2 = 0; //reset timer to 0
+    
     OC2CON2bits.SYNCSEL = 0x1F;  //sets pin 4 as a pwm. Servos
     OC2CON1bits.OCTSEL = 0b111;
     OC2CON1bits.OCM = 0b110;
     OC2CON2bits.OCTRIG = 0;
+    OC2RS = 10000;
+    OC2R = 250;
+    OC2CON1bits.OCM = 0b110;
+    T2CONbits.TON = 1; //starts the timer
 
     OC3CON2bits.SYNCSEL = 0x1F;  //sets pin 5 as a pwm. Left Motor
     OC3CON1bits.OCTSEL = 0b111;
     OC3CON1bits.OCM = 0b110;
     OC3CON2bits.OCTRIG = 0;
-    
-    _RCDIV = 0b00;   //sets postscalor to 1
     
     ANSA = 0; //MAKES IT DIGITAL
     ANSB = 0;
@@ -140,11 +151,11 @@ int main(void) {
     _TRISB9 = 0;
     
 
-//    OC1RS = 166;  
-//    OC1R = 0;     
-//    _TRISB1 = 0;
-//    _LATA2 = 0; //pin 4 as dir
-//    _LATA1 = 0; //pin 3 as dir
+/*    OC1RS = 166;  
+    OC1R = 0;     
+    _TRISB1 = 0;
+    _LATA2 = 0; //pin 4 as dir
+    _LATA1 = 0; //pin 3 as dir*/
 
     // Configure A/D
     config_pins_for_ad();
@@ -165,7 +176,7 @@ int main(void) {
     int MedSpeed = 9000;
     int FastSpeed = 9000;
     
-    enum {Forward, Left, Right, ExtremeRight, ExtremeLeft, CanyonForward, Left90, Right90} state; // potentially add a stop state
+    enum {Forward, Left, Right, ExtremeRight, ExtremeLeft, CanyonForward, Left90, Right90, Black_drop, White_drop} state; // potentially add a stop state
         state = Forward;
         OC1RS = BaseSpeed; // Right Stepper motor PWM
         OC1R = OC1RS/2; // Right Stepper motor Duty Cycle
@@ -179,9 +190,10 @@ int main(void) {
         double LeftQRD = (double)ADC1BUF10/4095.0 * 3.3; // Pin 17 = left QRD
         double MidQRD = (double)ADC1BUF11/4095.0 * 3.3; // Pin 16 = Middle QRD
         double RightQRD = (double)ADC1BUF12/4095.0 * 3.3; // Pin 15 = Right QRD
+        double BallColorQRD = (double)ADC1BUF9/4095.0 * 3.3; // Pin 17 = left QRD
         int FrontIR = (int)_RA0;  //Pin 2 = FrontIR
-        float RightIR = (double)ADC1BUF14/4095.0 * 3.3;  //Pin 8 = Right UlstraSonic Sensor
-        float LeftIR = (double)ADC1BUF4/4095.0 * 3.3;  //Pin 6 = Left UltraSonic Sensor
+        float RightIR = (double)ADC1BUF14/4095.0 * 3.3;  //Pin 8 = Right Sharp Sensor
+        float LeftIR = (double)ADC1BUF4/4095.0 * 3.3;  //Pin 6 = Left Sharp Sensor
         double Line_Threshold_Voltage = 1.5; //volts. change this according to the low pass filter V_out
         double right_QRD_threshold = 2.3;
         double Canyon_Threshold = 1.3;
@@ -189,12 +201,12 @@ int main(void) {
 //        _LATB7 = LeftQRD > Line_Threshold_Voltage;  //Pin 11
 //        _LATB8 = RightQRD > Line_Threshold_Voltage; //Pin 12
 //        _LATB9 = MidQRD > Line_Threshold_Voltage;  //Pin 13
-        
-        
 
         _LATA1 = 1;  //DIR Pin 3 Right Wheel  Forward
         _LATA2 = 0;  //DIR Pin 7 Left Wheel   Forward
         //_LATB0 = 0;  //DISable Off Pin 4
+        
+        
         
         switch (state)
         {
@@ -265,6 +277,25 @@ int main(void) {
                     _LATB8 = 1; // turns on LED 2 (pin 12)
                     _LATB9 = 1; // turns on LED 3 (pin 13)
                     state = ExtremeLeft;
+                }
+                
+                else if (LeftQRD > Line_Threshold_Voltage && RightQRD > Line_Threshold_Voltage && MidQRD < Line_Threshold_Voltage && RightIR > Canyon_Threshold && LeftIR > Canyon_Threshold) {
+                    // if the sharp sensors are seeing the sample drop off zones and the midQRD  is sensing white, then the robot turns to the correct zone
+                    if (BallColorQRD > Line_Threshold_Voltage) {
+                        //turn right to the black ball zone
+                        _LATA1 = 0; //RIGHT WHEEL BACKWARDS
+                        turn90();
+                        _LATA1 = 1;
+                        OC2RS = 
+                        state = Black_drop;
+                    }
+                    
+                    else if (BallColorQRD < Line_Threshold_Voltage){
+                        // turn left to the white ball zone
+                        _LATA2 = 1; //LEFT MOTOR BACKWARDS
+                        turn90();
+                        state = White_drop;
+                    }
                 }
                 
                 break;
@@ -492,7 +523,6 @@ int main(void) {
                 state = Forward;
                 break;
                         
-
        }
     
     }

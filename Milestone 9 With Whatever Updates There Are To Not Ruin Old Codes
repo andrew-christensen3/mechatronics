@@ -204,18 +204,18 @@ int main(void) {
 //                _LATB8 = 1;
 //                _LATB9 = 0;
                 
-//                if (LeftQRD > Line_Threshold_Voltage && RightQRD > Line_Threshold_Voltage && MidQRD > Line_Threshold_Voltage && !RightIR && !LeftIR){
-//                    _LATB7 = 1; // turns on LED 1
-//                    _LATB8 = 1;
-//                    _LATB9 = 1;
-//                    OC1RS = BaseSpeed; // Right Stepper motor PWM
-//                    OC1R = OC1RS/2; // Right Stepper motor Duty Cycle
-//                    OC3RS = BaseSpeed; // Left Stepper motor PWM
-//                    OC3R = OC3RS/2; // Left Stepper motor Duty Cycle
-//                    state = CanyonForward;
-//                }
+                if (LeftQRD > Line_Threshold_Voltage && RightQRD > Line_Threshold_Voltage && MidQRD > Line_Threshold_Voltage && RightIR > Canyon_Threshold && LeftIR > Canyon_Threshold){
+                    _LATB7 = 1; // turns on LED 1
+                    _LATB8 = 1;
+                    _LATB9 = 1;
+                    OC1RS = BaseSpeed; // Right Stepper motor PWM
+                    OC1R = OC1RS/2; // Right Stepper motor Duty Cycle
+                    OC3RS = BaseSpeed; // Left Stepper motor PWM
+                    OC3R = OC3RS/2; // Left Stepper motor Duty Cycle
+                    state = CanyonForward;
+                }
                 
-                if (LeftQRD < Line_Threshold_Voltage && MidQRD < Line_Threshold_Voltage) {
+                else if (LeftQRD < Line_Threshold_Voltage && MidQRD < Line_Threshold_Voltage) {
                     // QRD 17 will be on the line, so it will go low and the QRD 16 should go high because it is off the line. 
                     // this will cause the robot to turn right
                     OC1RS = MedSpeed; // Right Stepper motor PWM
@@ -420,15 +420,15 @@ int main(void) {
             case CanyonForward:   //Still trying to figure out the code correctly
                 //This will cause the robot to go forward until it senses a wall
                 
-                if (!FrontIR  && LeftIR > Canyon_Threshold){
+                if (!FrontIR && LeftIR > Canyon_Threshold){
                     OC1RS = BaseSpeed; // Right Stepper motor PWM
                     OC1R = OC1RS/2; // Right Stepper motor Duty Cycle
                     OC3RS = BaseSpeed; // Left Stepper motor PWM
                     OC3R = OC3RS/2; // Left Stepper motor Duty Cycle
                     _LATA1 = 0;  //Spin Right Wheel Backwards
-//                    _LATB7 = 1; // turns on LED 1
-//                    _LATB8 = 1;
-//                    _LATB9 = 0;
+                    _LATB7 = 0; // turns on LED 1
+                    _LATB8 = 0;
+                    _LATB9 = 1;
                     turn90();
                     state = Right90;
                 }
@@ -439,9 +439,9 @@ int main(void) {
                     OC3RS = BaseSpeed; // Left Stepper motor PWM
                     OC3R = OC3RS/2; // Left Stepper motor Duty Cycle
                     _LATA2 = 1;  //Spin Left Wheel Backwards
-//                    _LATB7 = 0; // turns on LED 1
-//                    _LATB8 = 1;
-//                    _LATB9 = 0;
+                    _LATB7 = 1; // turns on LED 1
+                    _LATB8 = 0;
+                    _LATB9 = 0;
                     turn90();
                     state = Left90;
                 }
@@ -466,9 +466,9 @@ int main(void) {
                     OC3RS = BaseSpeed; // Left Stepper motor PWM
                     OC3R = OC3RS/2; // Left Stepper motor Duty Cycle
                     _LATA1 = 1;  //Spin Right Wheel Forward
-//                    _LATB7 = 1; // turns on LED 1
-//                    _LATB8 = 1;
-//                    _LATB9 = 1;
+                    _LATB7 = 1; // turns on LED 1
+                    _LATB8 = 1;
+                    _LATB9 = 1;
                     state = CanyonForward;
                 }
                 break;
@@ -480,9 +480,9 @@ int main(void) {
                     OC3RS = BaseSpeed; // Left Stepper motor PWM
                     OC3R = OC3RS/2; // Left Stepper motor Duty Cycle
                     _LATA2 = 0;  //Spin Left Wheel Forward
-//                    _LATB7 = 1; // turns on LED 1
-//                    _LATB8 = 1;
-//                    _LATB9 = 1;
+                    _LATB7 = 1; // turns on LED 1
+                    _LATB8 = 1;
+                    _LATB9 = 1;
                     state = CanyonForward;
                 }
                 break;

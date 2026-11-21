@@ -5,13 +5,11 @@
  * Created on November 5, 2026, 6:57 PM
  */
 
-
 //BASIC MOVEMENT CODE
 //changes that need to me made is to make dir for the left motor to be A2 and the dis to be B2
 
 
 #include "xc.h"
-
 
 #pragma config ICS = PGx3
 
@@ -194,9 +192,9 @@ int main(void) {
         int FrontIR = (int)_RA0;  //Pin 2 = FrontIR
         float RightIR = (double)ADC1BUF14/4095.0 * 3.3;  //Pin 8 = Right Sharp Sensor
         float LeftIR = (double)ADC1BUF4/4095.0 * 3.3;  //Pin 6 = Left Sharp Sensor
-        double Line_Threshold_Voltage = 1.5; //volts. change this according to the low pass filter V_out
+        double Line_Threshold_Voltage = 1.8; //volts. change this according to the low pass filter V_out
         double right_QRD_threshold = 2.3;
-        double Canyon_Threshold = 1.3;
+        double Canyon_Threshold = 1.5;
         
 //        _LATB7 = LeftQRD > Line_Threshold_Voltage;  //Pin 11
 //        _LATB8 = RightQRD > Line_Threshold_Voltage; //Pin 12
@@ -279,24 +277,30 @@ int main(void) {
                     state = ExtremeLeft;
                 }
                 
-                else if (LeftQRD > Line_Threshold_Voltage && RightQRD > Line_Threshold_Voltage && MidQRD < Line_Threshold_Voltage && RightIR > Canyon_Threshold && LeftIR > Canyon_Threshold) {
-                    // if the sharp sensors are seeing the sample drop off zones and the midQRD  is sensing white, then the robot turns to the correct zone
-                    if (BallColorQRD > Line_Threshold_Voltage) {
-                        //turn right to the black ball zone
-                        _LATA1 = 0; //RIGHT WHEEL BACKWARDS
-                        turn90();
-                        _LATA1 = 1;
-                        OC2RS = 
-                        state = Black_drop;
-                    }
-                    
-                    else if (BallColorQRD < Line_Threshold_Voltage){
-                        // turn left to the white ball zone
-                        _LATA2 = 1; //LEFT MOTOR BACKWARDS
-                        turn90();
-                        state = White_drop;
-                    }
-                }
+//                else if (LeftQRD > Line_Threshold_Voltage && RightQRD > Line_Threshold_Voltage && MidQRD < Line_Threshold_Voltage && RightIR > Canyon_Threshold && LeftIR > Canyon_Threshold) {
+//                    // if the sharp sensors are seeing the sample drop off zones and the midQRD  is sensing white, then the robot turns to the correct zone
+//                    if (BallColorQRD > Line_Threshold_Voltage) {
+//                        //turn right to the black ball zone
+//                        _LATA1 = 0; //RIGHT WHEEL BACKWARDS
+//                        turn90();
+//                        _LATA1 = 1;
+//                        OC1RS = BaseSpeed; // Right Stepper motor PWM
+//                        OC1R = OC1RS/2; // Right Stepper motor Duty Cycle
+//                        //_LATA4 = 1; //Disable Left Motor
+//                        OC3RS = BaseSpeed; // Left Stepper motor PWM
+//                        OC3R = OC3RS/2; // Left Stepper motor Duty Cycle
+//                        OC2RS = 10000;
+//                        OC2R = 750; // sets Servo motor to 90 degrees
+//                        state = Black_drop;
+//                    }
+//                    
+//                    else if (BallColorQRD < Line_Threshold_Voltage){
+//                        // turn left to the white ball zone
+//                        _LATA2 = 1; //LEFT MOTOR BACKWARDS
+//                        turn90();
+//                        state = White_drop;
+//                    }
+//                }
                 
                 break;
 

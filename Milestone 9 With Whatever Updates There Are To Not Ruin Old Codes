@@ -180,9 +180,9 @@ int main(void) {
         double MidQRD = (double)ADC1BUF11/4095.0 * 3.3; // Pin 16 = Middle QRD
         double RightQRD = (double)ADC1BUF12/4095.0 * 3.3; // Pin 15 = Right QRD
         int FrontIR = (int)_RA0;  //Pin 2 = FrontIR
-        float RightIR = (double)ADC1BUF4/4095.0 * 3.3;  //Pin 8 = Right UlstraSonic Sensor
-        float LeftIR = (double)ADC1BUF14/4095.0 * 3.3;  //Pin 6 = Left UltraSonic Sensor
-        double Line_Threshold_Voltage = 1.8; //volts. change this according to the low pass filter V_out
+        float RightIR = (double)ADC1BUF14/4095.0 * 3.3;  //Pin 8 = Right UlstraSonic Sensor
+        float LeftIR = (double)ADC1BUF4/4095.0 * 3.3;  //Pin 6 = Left UltraSonic Sensor
+        double Line_Threshold_Voltage = 1.5; //volts. change this according to the low pass filter V_out
         double right_QRD_threshold = 2.3;
         double Canyon_Threshold = 1.3;
         
@@ -193,7 +193,7 @@ int main(void) {
         
 
         _LATA1 = 1;  //DIR Pin 3 Right Wheel  Forward
-        _LATA2 = 0;  //DIR Pin 7 Left Wheel   Backward
+        _LATA2 = 0;  //DIR Pin 7 Left Wheel   Forward
         //_LATB0 = 0;  //DISable Off Pin 4
         
         switch (state)
@@ -266,6 +266,7 @@ int main(void) {
                     _LATB9 = 1; // turns on LED 3 (pin 13)
                     state = ExtremeLeft;
                 }
+                
                 break;
 
             case Right:
@@ -447,13 +448,13 @@ int main(void) {
                 }
                 
                 else if (MidQRD < Line_Threshold_Voltage && RightIR > Canyon_Threshold){
-                    _LATA2 = 1;
+                    _LATA1 = 0;
                     turn90();
                     state = Forward;
                 }
                 
                 else if (MidQRD < Line_Threshold_Voltage && LeftIR > Canyon_Threshold){
-                    _LATA1 = 0;
+                    _LATA2 = 1;
                     turn90();
                     state = Forward;
                 }
